@@ -1,0 +1,26 @@
+webrtc is technology  allows to share the file and the data or video within the two browser without any external server.
+
+protocol used :
+1. TCP (Transfer Control Protocol) Reliable 
+2. UDP (User Datagram Protocol) Data Can loose not reliable use in WEBRTC
+
+
+1. TURN SERVER:
+our browsers Knows there Private ip assign by modems but not Public Ip(IP of modem through which modem is connected to internet) so to connect with the other machine on another network our machine should know the public IP of there modem so for that we use : TURN SERVER | ICE SERVER 
+
+Our machine connect to turn server via router and then turn server returns the complete details of the connecting router to our browser and we get to know the our public address
+
+2.Socket Connectivity:
+After First Step every PC have there own SDP (Session Despcription) which contain data like (Public IP, Private IP,Route To connect). So there is one node server or Just Temp server which just allow to share the machines SDP to each other with out using socket Connection.
+
+zoom and discord and google meet uses a SFU toppology (Selecting forwording unit):
+Here we require a server which basically runs the virtual machne and allow other clients to connect with them. each clients opens the p to p conection with the server and shere there streams then server combines all the stream together and create one compose stream and it is share with all users.
+
+Drawback Of WebRtc:(P TO P)
+Only Able to connect two persons at a time.
+
+
+
+
+
+
