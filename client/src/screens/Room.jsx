@@ -8,7 +8,7 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#1976d2', 
+      main: '#1976d2',
     },
   },
   typography: {
@@ -21,10 +21,13 @@ const RoomPage = () => {
   const [remoteSocketId, setRemoteSocketId] = useState(null);
   const [myStream, setMyStream] = useState();
   const [remoteStream, setRemoteStream] = useState();
+  const [myUsername, setMyUsername] = useState(""); // To store user's own username
+  const [remoteUsername, setRemoteUsername] = useState(""); // To store the remote user's username
 
   const handleUserJoined = useCallback(({ username, id }) => {
     console.log(`Username ${username} joined room`);
     setRemoteSocketId(id);
+    setRemoteUsername(username);
   }, []);
 
   const handleCallUser = useCallback(async () => {
@@ -38,8 +41,9 @@ const RoomPage = () => {
   }, [remoteSocketId, socket]);
 
   const handleIncommingCall = useCallback(
-    async ({ from, offer }) => {
+    async ({ from, offer, username }) => {
       setRemoteSocketId(from);
+      setRemoteUsername(username);
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: true,
         video: true,
@@ -120,71 +124,70 @@ const RoomPage = () => {
   ]);
 
   return (
-<ThemeProvider theme={theme}>
-  <CssBaseline />
-  <Container component="main" maxWidth="lg">
-    <Box
-      sx={{
-        marginTop: 8,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-      }}
-    >
-      <Typography component="h1" variant="h5" color="primary">
-        Room Page
-      </Typography>
-      <Typography component="h4" color="textSecondary" sx={{ mb: 2 }}>
-        {remoteSocketId ? "Connected" : "No one in room"}
-      </Typography>
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: { xs: 'column', md: 'row' }, // Vertically on mobile, horizontally on larger screens
-          justifyContent: 'center',
-          gap: 2,
-        }}
-      >
-        {myStream && (
-          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <Typography variant="h6">My Stream</Typography>
-            <ReactPlayer
-              playing
-              muted
-              height="300px"
-              width="100%" // Responsive width
-              url={myStream}
-              style={{ borderRadius: '8px', border: '2px solid #1976d2' }}
-            />
-          </Box>
-        )}
-        {remoteStream && (
-          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <Typography variant="h6">Remote Stream</Typography>
-            <ReactPlayer
-              playing
-              height="300px"
-              width="100%" // Responsive width
-              url={remoteStream}
-              style={{ borderRadius: '8px', border: '2px solid #1976d2' }}
-            />
-          </Box>
-        )}
-      </Box>
-      {remoteSocketId && (
-        <Button
-          variant="contained"
-          color="primary"
-          sx={{ mt: 3 }}
-          onClick={handleCallUser}
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Container component="main" maxWidth="lg">
+        <Box
+          sx={{
+            marginTop: 8,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}
         >
-          Call User
-        </Button>
-      )}
-    </Box>
-  </Container>
-</ThemeProvider>
-
+          <Typography component="h1" variant="h5" color="primary">
+            Room Page
+          </Typography>
+          <Typography component="h4" color="textSecondary" sx={{ mb: 2 }}>
+            {remoteSocketId ? `Connected to ${remoteUsername}` : "No one in room"}
+          </Typography>
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: { xs: 'column', md: 'row' }, // Vertically on mobile, horizontally on larger screens
+              justifyContent: 'center',
+              gap: 2,
+            }}
+          >
+            {myStream && (
+              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <Typography variant="h6">{myUsername}'s Stream</Typography>
+                <ReactPlayer
+                  playing
+                  muted
+                  height="300px"
+                  width="100%" // Responsive width
+                  url={myStream}
+                  style={{ borderRadius: '8px', border: '2px solid #1976d2' }}
+                />
+              </Box>
+            )}
+            {remoteStream && (
+              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <Typography variant="h6">{remoteUsername}'s Stream</Typography>
+                <ReactPlayer
+                  playing
+                  height="300px"
+                  width="100%" // Responsive width
+                  url={remoteStream}
+                  style={{ borderRadius: '8px', border: '2px solid #1976d2' }}
+                />
+              </Box>
+            )}
+          </Box>
+          {remoteSocketId && (
+            <Button
+              variant="contained"
+              color="primary"
+              sx={{ mt: 3 }}
+              onClick={handleCallUser}
+            >
+              Share Video
+            </Button>
+          )}
+        </Box>
+      </Container>
+    </ThemeProvider>
   );
 };
 
