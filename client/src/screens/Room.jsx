@@ -156,7 +156,6 @@ const RoomPage = () => {
                 <Typography variant="h6">Remote Stream</Typography>
                 <ReactPlayer
                   playing
-                  muted
                   height="300px"
                   width="400px"
                   url={remoteStream}
