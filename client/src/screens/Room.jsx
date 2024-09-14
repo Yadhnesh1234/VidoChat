@@ -140,7 +140,7 @@ const RoomPage = () => {
             Room Page
           </Typography>
           <Typography component="h4" color="textSecondary" sx={{ mb: 2 }}>
-            {remoteSocketId ? `Connected to ${remoteUsername}` : "No one in room"}
+            {remoteSocketId ? `Connected to ${remoteUsername.toUpperCase()}` : "No one in room"}
           </Typography>
           <Box
             sx={{
@@ -152,7 +152,7 @@ const RoomPage = () => {
           >
             {myStream && (
               <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <Typography variant="h6">{myUsername || "My Stream"}</Typography>
+                <Typography variant="h6">{myUsername || "ME"}</Typography>
                 <ReactPlayer
                   playing
                   muted
@@ -165,7 +165,7 @@ const RoomPage = () => {
             )}
             {remoteStream && (
               <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <Typography variant="h6">{remoteUsername || "Remote Stream"}</Typography>
+                <Typography variant="h6">{remoteUsername.toUpperCase() || "Remote Stream"}</Typography>
                 <ReactPlayer
                   playing
                   height="300px"
@@ -183,7 +183,7 @@ const RoomPage = () => {
               sx={{ mt: 3 }}
               onClick={handleCallUser}
             >
-              Call User
+              Share Video
             </Button>
           )}
         </Box>
