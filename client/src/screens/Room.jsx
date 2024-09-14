@@ -8,7 +8,7 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#1976d2',
+      main: '#1976d2', 
     },
   },
   typography: {
@@ -21,13 +21,13 @@ const RoomPage = () => {
   const [remoteSocketId, setRemoteSocketId] = useState(null);
   const [myStream, setMyStream] = useState();
   const [remoteStream, setRemoteStream] = useState();
-  const [myUsername, setMyUsername] = useState(""); // To store user's own username
-  const [remoteUsername, setRemoteUsername] = useState(""); // To store the remote user's username
+  const [remoteUsername, setRemoteUsername] = useState(""); // Added state for remote username
+  const [myUsername, setMyUsername] = useState(""); // Added state for my username
 
   const handleUserJoined = useCallback(({ username, id }) => {
     console.log(`Username ${username} joined room`);
     setRemoteSocketId(id);
-    setRemoteUsername(username);
+    setRemoteUsername(username); // Set the remote username
   }, []);
 
   const handleCallUser = useCallback(async () => {
@@ -41,9 +41,9 @@ const RoomPage = () => {
   }, [remoteSocketId, socket]);
 
   const handleIncommingCall = useCallback(
-    async ({ from, offer, username }) => {
+    async ({ from, offer, username }) => { // Handle incoming call with username
       setRemoteSocketId(from);
-      setRemoteUsername(username);
+      setRemoteUsername(username); // Set the remote username
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: true,
         video: true,
@@ -62,9 +62,10 @@ const RoomPage = () => {
   }, [myStream]);
 
   const handleCallAccepted = useCallback(
-    ({ from, ans }) => {
+    ({ from, ans, username }) => { // Handle call accepted with username
       peer.setLocalDescription(ans);
       sendStreams();
+      setRemoteUsername(username); // Set the remote username
     },
     [sendStreams]
   );
@@ -144,14 +145,14 @@ const RoomPage = () => {
           <Box
             sx={{
               display: 'flex',
-              flexDirection: { xs: 'column', md: 'row' }, // Vertically on mobile, horizontally on larger screens
+              flexDirection: { xs: 'column', md: 'row' }, 
               justifyContent: 'center',
               gap: 2,
             }}
           >
             {myStream && (
               <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <Typography variant="h6">{myUsername}'s Stream</Typography>
+                <Typography variant="h6">{myUsername || "My Stream"}</Typography>
                 <ReactPlayer
                   playing
                   muted
@@ -164,7 +165,7 @@ const RoomPage = () => {
             )}
             {remoteStream && (
               <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <Typography variant="h6">{remoteUsername}'s Stream</Typography>
+                <Typography variant="h6">{remoteUsername || "Remote Stream"}</Typography>
                 <ReactPlayer
                   playing
                   height="300px"
@@ -182,7 +183,7 @@ const RoomPage = () => {
               sx={{ mt: 3 }}
               onClick={handleCallUser}
             >
-              Share Video
+              Call User
             </Button>
           )}
         </Box>
