@@ -1,46 +1,39 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const {Server} =  require('socket.io');
+const { Server } = require("socket.io");
 
-const io = new Server({
-    cors:true
+const io = new Server(8000, {
+  cors: true,
 });
-const app=express();
 
-app.use(bodyParser.json());
+const usernameToSocketIdMap = new Map();
+const socketidToUsernameMap = new Map();
 
-const emailToSocketMap = new Map();
-const socketToEmailMap = new Map()
+io.on("connection", (socket) => {
+  console.log(`Socket Connected`, socket.id);
 
-io.on("connection",(socket)=>{
-    console.log("New Connection")
-    socket.on("join-room",(data)=>{
-        console.log("user",data);
-        const {roomId,username}=data;
-        emailToSocketMap.set(username,socket.id)
-        socketToEmailMap.set(socket.id,username)
-        socket.join(roomId);
-        socket.emit('joined-room',{roomId})
+  socket.on("room:join", (data) => {
+    const { username, room } = data;
+    usernameToSocketIdMap.set(username, socket.id);
+    socketidToUsernameMap.set(socket.id, username);
+    io.to(room).emit("user:joined", { username, id: socket.id });
+    socket.join(room);
+    io.to(socket.id).emit("room:join", data);
+  });
 
-        socket.broadcast.to(roomId).emit("user-joined",{username})
-    })
+  socket.on("user:call", ({ to, offer }) => {
+    io.to(to).emit("incomming:call", { from: socket.id, offer });
+  });
 
-    socket.on('call-user',(data)=>{
-         const {username,offer} = data
-         const socketId = emailToSocketMap.get(username)
-         const fromUser =socketToEmailMap.get(socket.id)
-         socket.to(socketId).emit('incomming-call',{from:fromUser,offer})
-    })
+  socket.on("call:accepted", ({ to, ans }) => {
+    io.to(to).emit("call:accepted", { from: socket.id, ans });
+  });
 
-    socket.on('call-accepted',(data)=>{
-         const {username,ans}=data
-         const socketId = emailToSocketMap.get(username)
-         const fromUser =socketToEmailMap.get(socket.id)
-         socket.to(socketId).emit('accepted-call',{from:fromUser,ans})
-    })
-})
+  socket.on("peer:nego:needed", ({ to, offer }) => {
+    console.log("peer:nego:needed", offer);
+    io.to(to).emit("peer:nego:needed", { from: socket.id, offer });
+  });
 
-io.on('connection',(socket)=>{})
-
-app.listen(8000,()=> console.log("Server Running on port 8000"));
-io.listen(8001);
+  socket.on("peer:nego:done", ({ to, ans }) => {
+    console.log("peer:nego:done", ans);
+    io.to(to).emit("peer:nego:final", { from: socket.id, ans });
+  });
+});
