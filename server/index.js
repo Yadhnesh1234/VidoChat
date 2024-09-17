@@ -9,7 +9,6 @@ const socketidToUsernameMap = new Map();
 
 io.on("connection", (socket) => {
   console.log(`Socket Connected`, socket.id);
-
   socket.on("room:join", (data) => {
     const { username, room } = data;
     usernameToSocketIdMap.set(username, socket.id);
