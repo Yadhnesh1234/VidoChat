@@ -8,7 +8,7 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#1976d2', 
+      main: '#1976d2',
     },
   },
   typography: {
@@ -21,14 +21,13 @@ const RoomPage = () => {
   const [remoteSocketId, setRemoteSocketId] = useState(null);
   const [myStream, setMyStream] = useState();
   const [remoteStream, setRemoteStream] = useState();
-  const [remoteUsername, setRemoteUsername] = useState(""); // Added state for remote username
-  const [myUsername, setMyUsername] = useState(""); // Added state for my username
+  const [remoteUsername, setRemoteUsername] = useState("");
+  const [myUsername, setMyUsername] = useState("");
 
   const handleUserJoined = useCallback(({ username, id }) => {
-    console.log(`Username ${username} joined room`);
     setRemoteSocketId(id);
-    setRemoteUsername(username); // Set the remote username
-  }, []);
+    setRemoteUsername(username);
+  }, [socket]);
 
   const handleCallUser = useCallback(async () => {
     const stream = await navigator.mediaDevices.getUserMedia({
@@ -41,9 +40,9 @@ const RoomPage = () => {
   }, [remoteSocketId, socket]);
 
   const handleIncommingCall = useCallback(
-    async ({ from, offer, username }) => { // Handle incoming call with username
+    async ({ from, offer, username }) => {
       setRemoteSocketId(from);
-      setRemoteUsername(username); // Set the remote username
+      setRemoteUsername(username);
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: true,
         video: true,
@@ -62,10 +61,10 @@ const RoomPage = () => {
   }, [myStream]);
 
   const handleCallAccepted = useCallback(
-    ({ from, ans, username }) => { // Handle call accepted with username
+    ({ from, ans, username }) => {
       peer.setLocalDescription(ans);
       sendStreams();
-      setRemoteUsername(username); // Set the remote username
+      setRemoteUsername(username);
     },
     [sendStreams]
   );
@@ -94,12 +93,15 @@ const RoomPage = () => {
     await peer.setLocalDescription(ans);
   }, []);
 
+
+
   useEffect(() => {
     peer.peer.addEventListener("track", async (ev) => {
       const remoteStream = ev.streams;
       setRemoteStream(remoteStream[0]);
     });
   }, []);
+
 
   useEffect(() => {
     socket.on("user:joined", handleUserJoined);
@@ -145,7 +147,7 @@ const RoomPage = () => {
           <Box
             sx={{
               display: 'flex',
-              flexDirection: { xs: 'column', md: 'row' }, 
+              flexDirection: { xs: 'column', md: 'row' },
               justifyContent: 'center',
               gap: 2,
             }}
@@ -163,6 +165,7 @@ const RoomPage = () => {
                 />
               </Box>
             )}
+
             {remoteStream && (
               <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                 <Typography variant="h6">{remoteUsername.toUpperCase() || "Remote Stream"}</Typography>
@@ -177,15 +180,15 @@ const RoomPage = () => {
             )}
           </Box>
           {remoteSocketId && (
-            <Button
-              variant="contained"
-              color="primary"
-              sx={{ mt: 3 }}
-              onClick={handleCallUser}
-            >
-              Share Video
-            </Button>
-          )}
+              <Button
+                variant="contained"
+                color="primary"
+                sx={{ mt: 3 }}
+                onClick={handleCallUser}
+              >
+                Share My Stream
+              </Button>
+            )}
         </Box>
       </Container>
     </ThemeProvider>
